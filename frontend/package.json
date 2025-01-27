@@ -1,0 +1,43 @@
+{
+    "name": "events-app-frontend",
+    "version": "1.0.0",
+    "description": "A React application for managing and displaying city events.",
+    "private": true,
+    "dependencies": {
+        "@radix-ui/react-alert-dialog": "^1.1.5",
+        "leaflet": "^1.7.1",
+        "lucide-react": "^0.474.0",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-leaflet": "^3.2.0",
+        "react-scripts": "^5.0.1"
+    },
+    "scripts": {
+        "start": "react-scripts start --openssl-legacy-provider",
+        "build": "react-scripts build --openssl-legacy-provider",
+        "test": "react-scripts test --openssl-legacy-provider",
+        "eject": "react-scripts eject"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+        "@svgr/plugin-svgo": "^8.1.0",
+        "@svgr/webpack": "^8.1.0",
+        "css-select": "^5.1.0",
+        "nth-check": "^2.1.1",
+        "postcss": "^8.5.1",
+        "resolve-url-loader": "^5.0.0",
+        "svgo": "^3.3.2"
+    }
+}
