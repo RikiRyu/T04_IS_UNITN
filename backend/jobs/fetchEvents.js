@@ -1,7 +1,11 @@
-const axios = require('axios');
-const Event = require('../models/Event');
+const axios = require('axios');         // HTTP client for making API requests
+const Event = require('../models/Event'); // Import Event model for database operations
 
-// Map event types from API to categories
+/**
+ * Maps Italian event types to English categories
+ * @param {string} name - The Italian event type name
+ * @returns {string} - The mapped English category or empty string
+ */
 function getEventType(name) {
   if (!name) return '';
   const typeMap = {
@@ -17,7 +21,11 @@ function getEventType(name) {
   return typeMap[lowerName] || '';
 }
 
-// Clean description to remove HTML and unnecessary characters
+/**
+ * Cleans HTML content from text and normalizes spacing
+ * @param {string} text - The text to clean
+ * @returns {string} - Cleaned and normalized text
+ */
 const cleanDescription = (text) => {
   if (!text) return 'No description available';
   return text
@@ -27,36 +35,45 @@ const cleanDescription = (text) => {
     .trim();
 };
 
+/**
+ * Main function to fetch and process events from Trento's API
+ * Handles pagination and updates the database with new events
+ */
 const fetchEvents = async () => {
   try {
-    const eventsUrl = process.env.TRENTO_API_URL || 'https://www.comune.trento.it/api/opendata/v2/content/search?classes=event';    let currentPageUrl = eventsUrl;
+    // Get API URL from environment variables or use default
+    const eventsUrl = process.env.TRENTO_API_URL || 'https://www.comune.trento.it/api/opendata/v2/content/search?classes=event';
+    let currentPageUrl = eventsUrl;
     const currentDate = new Date();
     
-    // Delete past events from the database
+    // Clean up old events
     await Event.deleteMany({ date: { $lt: currentDate } });
 
+    // Process all pages of results
     while (currentPageUrl) {
       const response = await axios.get(currentPageUrl);
       const { searchHits, nextPageQuery } = response.data;
 
+      // Validate response structure
       if (!Array.isArray(searchHits)) {
         throw new Error('Expected "searchHits" to be an array.');
       }
 
+      // Process each event in the current page
       for (const hit of searchHits) {
         const metadata = hit.metadata || {};
         const data = hit.data?.['ita-IT'] || {};
         const eventDate = new Date(data.from_time || metadata.published);
 
-        // Skip events with invalid or past dates
+        // Skip invalid or past events
         if (isNaN(eventDate) || eventDate < currentDate) continue;
 
-        // Extract event type information
+        // Process event type information
         const eventTypeObj = Array.isArray(data.tipo_evento) && data.tipo_evento[0];
         const eventTypeName = eventTypeObj?.name?.['ita-IT'] || 'No type';
         const category = getEventType(eventTypeName);
 
-        // Save or update the event in the database
+        // Upsert event in database (update if exists, insert if new)
         await Event.findOneAndUpdate(
           { apiId: metadata.id },
           {
@@ -77,7 +94,7 @@ const fetchEvents = async () => {
       }
 
       console.log(`Processed ${searchHits.length} events.`);
-      currentPageUrl = nextPageQuery; // Move to the next page if available
+      currentPageUrl = nextPageQuery; // Move to next page if available
     }
     console.log('Events updated successfully');
   } catch (error) {

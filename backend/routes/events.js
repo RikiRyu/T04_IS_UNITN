@@ -5,7 +5,10 @@ const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Middleware to verify token
+/**
+ * Authentication Middleware
+ * Verifies JWT token for protected routes
+ */
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -19,7 +22,11 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-// Get all events
+/**
+ * Get All Events
+ * GET /api/events
+ * Returns list of all events
+ */
 router.get('/', async (req, res) => {
   try {
     const events = await Event.find();
@@ -29,17 +36,19 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Save event
+/**
+ * Save Event
+ * POST /api/events/save/:eventId
+ * Saves an event to user's favorites
+ */
 router.post('/save/:eventId', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
-    console.log('User found:', user);
-    console.log('Event ID to save:', req.params.eventId);
-
+    
+    // Add event to saved list if not already saved
     if (!user.savedEvents.includes(req.params.eventId)) {
       user.savedEvents.push(req.params.eventId);
       await user.save();
-      console.log('Updated user:', user);
     }
     res.json({ message: 'Event saved successfully', savedEvents: user.savedEvents });
   } catch (error) {
@@ -48,7 +57,11 @@ router.post('/save/:eventId', authMiddleware, async (req, res) => {
   }
 });
 
-// Unsave event
+/**
+ * Unsave Event
+ * DELETE /api/events/save/:eventId
+ * Removes an event from user's favorites
+ */
 router.delete('/save/:eventId', authMiddleware, async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.userId, {
@@ -60,12 +73,14 @@ router.delete('/save/:eventId', authMiddleware, async (req, res) => {
   }
 });
 
-// Get saved events
+/**
+ * Get Saved Events
+ * GET /api/events/saved
+ * Returns user's saved events with full event details
+ */
 router.get('/saved', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.userId).populate('savedEvents');
-    console.log('Found user:', user);
-    console.log('Saved events:', user.savedEvents);
     res.json(user.savedEvents);
   } catch (error) {
     console.error('Failed to fetch saved events:', error);
