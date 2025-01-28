@@ -1,31 +1,40 @@
+// Import necessary dependencies from React and Lucide icons
 import React, { useState } from 'react';
 import { X, User, Settings, LogOut } from 'lucide-react';
 
 const AccountManager = ({ onClose, isDarkMode }) => {
+  // State management for form inputs and visibility
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');  // Success messages
+  const [error, setError] = useState('');      // Error messages
 
+  /**
+   * Handles password change submission
+   * Validates inputs and makes API call to update password
+   */
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
     
     try {
+      // Validate form inputs
       if (!currentPassword || !newPassword) {
         setError('Both passwords are required');
         return;
       }
 
+      // Check authentication status
       const token = localStorage.getItem('token');
       if (!token) {
         setError('Not authenticated');
         return;
       }
 
+      // Make API call to change password
       const response = await fetch('http://localhost:5000/api/auth/change-password', {
         method: 'POST',
         headers: {
@@ -44,6 +53,7 @@ const AccountManager = ({ onClose, isDarkMode }) => {
         throw new Error(data.error || 'Failed to change password');
       }
 
+      // Reset form and show success message
       setMessage('Password updated successfully');
       setCurrentPassword('');
       setNewPassword('');
@@ -52,12 +62,18 @@ const AccountManager = ({ onClose, isDarkMode }) => {
     }
   };
 
+  /**
+   * Handles user logout
+   * Removes authentication token and refreshes page
+   */
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.reload();
   };
 
+  // Styles object for component theming
   const styles = {
+    // Overlay for modal background
     overlay: {
       position: 'fixed',
       top: 0,
@@ -70,6 +86,7 @@ const AccountManager = ({ onClose, isDarkMode }) => {
       justifyContent: 'center',
       zIndex: 1000
     },
+    // Main container styling
     container: {
       backgroundColor: isDarkMode ? '#1f2937' : 'white',
       color: isDarkMode ? '#f3f4f6' : '#111827',
@@ -79,10 +96,12 @@ const AccountManager = ({ onClose, isDarkMode }) => {
       maxWidth: '400px',
       position: 'relative'
     },
+    // Input container for password fields
     inputContainer: {
       position: 'relative',
       marginBottom: '1rem'
     },
+    // Input field styling
     input: {
       width: '100%',
       padding: '0.5rem',
@@ -91,6 +110,7 @@ const AccountManager = ({ onClose, isDarkMode }) => {
       border: `1px solid ${isDarkMode ? '#4b5563' : '#d1d5db'}`,
       borderRadius: '4px'
     },
+    // Primary button styling (Change Password)
     button: {
       width: '100%',
       padding: '0.75rem',
@@ -101,6 +121,7 @@ const AccountManager = ({ onClose, isDarkMode }) => {
       cursor: 'pointer',
       marginBottom: '1rem'
     },
+    // Logout button styling
     logoutButton: {
       width: '100%',
       padding: '0.75rem',
@@ -110,6 +131,7 @@ const AccountManager = ({ onClose, isDarkMode }) => {
       borderRadius: '4px',
       cursor: 'pointer'
     },
+    // Toggle password visibility button
     togglePassword: {
       position: 'absolute',
       right: '10px',
@@ -122,9 +144,11 @@ const AccountManager = ({ onClose, isDarkMode }) => {
     }
   };
 
+  // Component render
   return (
     <div style={styles.overlay}>
       <div style={styles.container}>
+        {/* Close button */}
         <button 
           onClick={onClose}
           style={{
@@ -140,10 +164,12 @@ const AccountManager = ({ onClose, isDarkMode }) => {
           <X size={20} />
         </button>
 
+        {/* Header */}
         <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 'bold' }}>
           Account Manager
         </h2>
 
+        {/* Success message display */}
         {message && (
           <div style={{
             backgroundColor: isDarkMode ? '#022c22' : '#ecfdf5',
@@ -156,6 +182,7 @@ const AccountManager = ({ onClose, isDarkMode }) => {
           </div>
         )}
 
+        {/* Error message display */}
         {error && (
           <div style={{
             backgroundColor: isDarkMode ? '#fee2e2' : '#fee2e2',
@@ -168,7 +195,9 @@ const AccountManager = ({ onClose, isDarkMode }) => {
           </div>
         )}
 
+        {/* Password change form */}
         <form onSubmit={handleChangePassword}>
+          {/* Current password input */}
           <div style={styles.inputContainer}>
             <input
               type={showCurrentPassword ? "text" : "password"}
@@ -186,6 +215,7 @@ const AccountManager = ({ onClose, isDarkMode }) => {
             </button>
           </div>
 
+          {/* New password input */}
           <div style={styles.inputContainer}>
             <input
               type={showNewPassword ? "text" : "password"}
@@ -203,11 +233,13 @@ const AccountManager = ({ onClose, isDarkMode }) => {
             </button>
           </div>
 
+          {/* Submit button */}
           <button type="submit" style={styles.button}>
             Change Password
           </button>
         </form>
 
+        {/* Logout button */}
         <button onClick={handleLogout} style={styles.logoutButton}>
           Logout
         </button>

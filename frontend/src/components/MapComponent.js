@@ -50,12 +50,11 @@ const MapComponent = () => {
   const mapRef = useRef(null);
   const markerRefs = useRef({});
 
- // MODIFIED: Fetch all events using environment variable
+ // Fetch all events using environment variable
  useEffect(() => {
     const fetchEvents = async () => {
         try {
-            // OLD: const response = await fetch('http://localhost:5000/api/events');
-            // NEW: Use API_BASE_URL for environment-specific configuration
+            // Use API_BASE_URL for environment-specific configuration
             const response = await fetch(`${API_BASE_URL}/api/events`);
             const data = await response.json();
             setEvents(data);
@@ -66,15 +65,14 @@ const MapComponent = () => {
     fetchEvents();
 }, []);
 
-  // MODIFIED: Fetch saved events for logged-in users
+  //Fetch saved events for logged-in users
   useEffect(() => {
     const fetchSavedEvents = async () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
       try {
-        // OLD: const response = await fetch('http://localhost:5000/api/events/saved'...
-        // NEW: Use API_BASE_URL for the request
+        // Use API_BASE_URL for the request
         const response = await fetch(`${API_BASE_URL}/api/events/saved`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -92,15 +90,14 @@ const MapComponent = () => {
     fetchSavedEvents();
   }, [localStorage.getItem('token')]);
 
-  // MODIFIED: Handle saving and unsaving events
+  // Handle saving and unsaving events
   const handleSaveEvent = async (eventId) => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
     try {
       if (savedEvents.includes(eventId)) {
-        // OLD: const response = await fetch(`http://localhost:5000/api/events/save/${eventId}`...
-        // NEW: Use API_BASE_URL for the request
+        // Use API_BASE_URL for the request
         const response = await fetch(`${API_BASE_URL}/api/events/save/${eventId}`, {
           method: 'DELETE',
           headers: {
@@ -111,8 +108,7 @@ const MapComponent = () => {
           setSavedEvents(savedEvents.filter(id => id !== eventId));
         }
       } else {
-        // OLD: const response = await fetch(`http://localhost:5000/api/events/save/${eventId}`...
-        // NEW: Use API_BASE_URL for the request
+        // Use API_BASE_URL for the request
         const response = await fetch(`${API_BASE_URL}/api/events/save/${eventId}`, {
           method: 'POST',
           headers: {
@@ -155,7 +151,7 @@ const MapComponent = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 backgroundColor: isDarkMode ? '#111827' : '#f3f4f6',
-                overflow: 'hidden' // Add this line
+                overflow: 'hidden'
             }}>
            <div className="header" style={{
                padding: '12px 24px',
@@ -251,7 +247,7 @@ const MapComponent = () => {
                height: 'calc(100vh - 64px)',
                gap: '16px',
                padding: '16px',
-               overflow: 'hidden' // Add this line
+               overflow: 'hidden'
            }}>
                <div style={{
                    width: '75%',
