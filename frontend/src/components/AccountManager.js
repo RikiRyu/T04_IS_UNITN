@@ -2,6 +2,11 @@
 import React, { useState } from 'react';
 import { X, User, Settings, LogOut } from 'lucide-react';
 
+/**
+ * AccountManager Component
+ * Manages user account functionality including password change and logout
+ */
+
 const AccountManager = ({ onClose, isDarkMode }) => {
   // State management for form inputs and visibility
   const [currentPassword, setCurrentPassword] = useState('');

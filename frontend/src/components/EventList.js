@@ -1,3 +1,9 @@
+/**
+ * EventList Component
+ * Renders a scrollable list of events with basic event information
+ * Utilizes Tailwind CSS for styling
+ */
+
 const EventList = ({ events }) => {
   return (
     // Container div with full height, padding, and vertical scroll

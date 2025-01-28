@@ -1,5 +1,10 @@
 import React from 'react';
 
+/**
+ * EventDetails Component
+ * Displays detailed information about a selected event
+ */
+
 const EventDetails = ({ event }) => {
   // Return placeholder message if no event is selected
   if (!event) {

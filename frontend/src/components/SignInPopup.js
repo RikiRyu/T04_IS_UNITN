@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X } from 'lucide-react';  // Import X icon for close button
 
+// Configure API base URL with fallback
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const SignInPopup = ({ onClose, isDarkMode }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
+  // State management
+  const [isLogin, setIsLogin] = useState(true);             // Toggle between login and signup
+  const [showPassword, setShowPassword] = useState(false);   // Toggle password visibility
+  const [formData, setFormData] = useState({                // Form input data
     email: '',
     password: '',
     confirmPassword: ''
   });
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');                   // Error messages
+  const [message, setMessage] = useState('');               // Success messages
+  const [isLoading, setIsLoading] = useState(false);        // Loading state
 
   const validatePassword = (password) => {
     const validations = {
@@ -24,6 +26,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
       special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
     };
 
+    // Return appropriate error message for failed validation
     if (!validations.length) return "Password must be at least 8 characters";
     if (!validations.uppercase) return "Password must contain an uppercase letter";
     if (!validations.lowercase) return "Password must contain a lowercase letter";
@@ -32,6 +35,10 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
     return "";
   };
 
+  /**
+   * Handles form submission for both login and registration
+   * @param {Event} e - Form submit event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -40,7 +47,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
 
     try {
       if (!isLogin) {
-        // Registration validation
+        // Validation for registration
         const passwordError = validatePassword(formData.password);
         if (passwordError) {
           throw new Error(passwordError);
@@ -51,6 +58,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
         }
       }
 
+      // Make API request
       const endpoint = isLogin ? 'login' : 'register';
       const response = await fetch(`${API_BASE_URL}/api/auth/${endpoint}`, {
         method: 'POST',
@@ -69,13 +77,14 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
         throw new Error(data.error || 'Authentication failed');
       }
 
+      // Handle successful authentication
       localStorage.setItem('token', data.token);
       setMessage(isLogin ? 'Login successful!' : 'Registration successful!');
       
-      // Close popup after successful login/registration
+      // Close popup and refresh page after success
       setTimeout(() => {
         onClose();
-        window.location.reload(); // Refresh to update UI with logged-in state
+        window.location.reload();
       }, 1500);
 
     } catch (err) {
@@ -85,7 +94,9 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
     }
   };
 
+  // Styles object for component theming
   const styles = {
+    // Modal overlay
     overlay: {
       position: 'fixed',
       top: 0,
@@ -98,6 +109,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
       justifyContent: 'center',
       zIndex: 1000
     },
+    // Main container
     container: {
       backgroundColor: isDarkMode ? '#1f2937' : 'white',
       color: isDarkMode ? '#f3f4f6' : '#111827',
@@ -107,6 +119,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
       maxWidth: '400px',
       position: 'relative'
     },
+    // Form input styling
     input: {
       width: '100%',
       padding: '0.5rem',
@@ -116,6 +129,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
       backgroundColor: isDarkMode ? '#374151' : 'white',
       color: isDarkMode ? '#f3f4f6' : '#111827'
     },
+    // Submit button styling
     button: {
       width: '100%',
       padding: '0.75rem',
@@ -130,6 +144,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
   return (
     <div style={styles.overlay}>
       <div style={styles.container}>
+        {/* Close button */}
         <button onClick={onClose} style={{
           position: 'absolute',
           right: '1rem',
@@ -142,10 +157,12 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
           <X size={20} />
         </button>
 
+        {/* Title */}
         <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 'bold' }}>
           {isLogin ? 'Log In' : 'Sign Up'}
         </h2>
 
+        {/* Error message display */}
         {error && (
           <div style={{
             backgroundColor: isDarkMode ? '#fee2e2' : '#fee2e2',
@@ -158,6 +175,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
           </div>
         )}
 
+        {/* Success message display */}
         {message && (
           <div style={{
             backgroundColor: isDarkMode ? '#022c22' : '#ecfdf5',
@@ -170,7 +188,9 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
           </div>
         )}
 
+        {/* Authentication form */}
         <form onSubmit={handleSubmit}>
+          {/* Email input */}
           <input
             type="email"
             placeholder="Email"
@@ -180,6 +200,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
             required
           />
 
+          {/* Password input with visibility toggle */}
           <div style={{ position: 'relative' }}>
             <input
               type={showPassword ? "text" : "password"}
@@ -207,6 +228,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
             </button>
           </div>
 
+          {/* Confirm password input (registration only) */}
           {!isLogin && (
             <input
               type="password"
@@ -218,6 +240,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
             />
           )}
 
+          {/* Submit button */}
           <button
             type="submit"
             style={styles.button}
@@ -227,6 +250,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
           </button>
         </form>
 
+        {/* Toggle between login and registration */}
         <div style={{ marginTop: '1rem', textAlign: 'center', color: isDarkMode ? '#d1d5db' : '#6b7280' }}>
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button
@@ -252,6 +276,7 @@ const SignInPopup = ({ onClose, isDarkMode }) => {
           </button>
         </div>
 
+        {/* Password requirements (registration only) */}
         {!isLogin && (
           <div style={{
             marginTop: '1rem',

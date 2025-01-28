@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { X, List } from 'lucide-react';
+import { X, List } from 'lucide-react';  // Import icons for UI elements
 
-// Use environment variable for API URL
+// Configure API base URL with fallback
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-const SavedEvents = ({ isDarkMode, onClose, onEventUnsaved }) => {
-  const [savedEvents, setSavedEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
+const SavedEvents = ({ isDarkMode, onClose, onEventUnsaved }) => {
+  // State management
+  const [savedEvents, setSavedEvents] = useState([]); // Stores saved events
+  const [loading, setLoading] = useState(true);       // Loading state
+  const [error, setError] = useState(null);           // Error state
+
+  // Fetch saved events on component mount
   useEffect(() => {
     fetchSavedEvents();
   }, []);
 
+  /**
+   * Fetches user's saved events from the API
+   * Handles authentication and error cases
+   */
   const fetchSavedEvents = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -51,6 +58,12 @@ const SavedEvents = ({ isDarkMode, onClose, onEventUnsaved }) => {
     }
   };
 
+  /**
+   * Removes an event from saved events
+   * Updates both local state and server
+   * 
+   * @param {string} eventId - ID of event to remove
+   */
   const handleUnsave = async (eventId) => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -77,6 +90,7 @@ const SavedEvents = ({ isDarkMode, onClose, onEventUnsaved }) => {
         return;
       }
 
+      // Update local state and notify parent component
       setSavedEvents(events => events.filter(event => event._id !== eventId));
       if (onEventUnsaved) {
         onEventUnsaved(eventId);
@@ -87,20 +101,22 @@ const SavedEvents = ({ isDarkMode, onClose, onEventUnsaved }) => {
     }
   };
 
-
+  // Styles object for component theming
   const styles = {
+    // Modal overlay styling
     overlay: {
       position: 'fixed',
       top: 0,
       left: 0,
       width: '100%',
       height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000
     },
+    // Main container styling
     container: {
       backgroundColor: isDarkMode ? '#1f2937' : 'white',
       color: isDarkMode ? '#f3f4f6' : '#111827',
@@ -112,17 +128,20 @@ const SavedEvents = ({ isDarkMode, onClose, onEventUnsaved }) => {
       overflow: 'auto',
       position: 'relative'
     },
+    // Header section styling
     header: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
       marginBottom: '1.5rem'
     },
+    // Title styling
     title: {
       fontSize: '1.5rem',
       fontWeight: 'bold',
       margin: 0
     },
+    // Individual event card styling
     eventCard: {
       padding: '1rem',
       marginBottom: '1rem',
@@ -133,13 +152,17 @@ const SavedEvents = ({ isDarkMode, onClose, onEventUnsaved }) => {
   };
 
   return (
+    // Modal overlay
     <div style={styles.overlay}>
+      {/* Main container */}
       <div style={styles.container}>
+        {/* Header section */}
         <div style={styles.header}>
           <h2 style={styles.title}>
             <List size={20} style={{ marginRight: '8px', display: 'inline' }} />
             Saved Events
           </h2>
+          {/* Close button */}
           <button
             onClick={onClose}
             style={{
@@ -153,28 +176,36 @@ const SavedEvents = ({ isDarkMode, onClose, onEventUnsaved }) => {
           </button>
         </div>
 
+        {/* Conditional content rendering based on state */}
         {loading ? (
           <p>Loading saved events...</p>
         ) : savedEvents.length === 0 ? (
           <p>No saved events yet</p>
         ) : (
+          // Map through saved events
           savedEvents.map(event => (
             <div key={event._id} style={styles.eventCard}>
-              <h3 style={{ marginTop: 0, marginBottom: '0.5rem' }}>{event.title}</h3>
+              {/* Event title */}
+              <h3 style={{ marginTop: 0, marginBottom: '0.5rem' }}>
+                {event.title}
+              </h3>
+              {/* Event date */}
               <p style={{ margin: '0.5rem 0' }}>
                 <span role="img" aria-label="calendar">📅</span>
                 {' '}
                 {new Date(event.date).toLocaleDateString('en-GB', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric'
-})}
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                })}
               </p>
+              {/* Event venue */}
               <p style={{ margin: '0.5rem 0' }}>
                 <span role="img" aria-label="location">📍</span>
                 {' '}
                 {event.venue}
               </p>
+              {/* Remove event button */}
               <button
                 onClick={() => handleUnsave(event._id)}
                 style={{
